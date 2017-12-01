@@ -40,7 +40,10 @@ import string
 
 
 str_prodocut_dir = r'\\172.16.0.17\product\2345explorer';
-str_big_version = r'9.1.1';
+str_big_version = r'9.1';
+# "发到项目群里的那句话"使用小版本号，一般大版本号等于小版本号
+# 但是也会出现不相同的情况，例如: V9.1  和  v9.1.1
+str_small_version = r'9.1.1';
 str_completet_version = r'9.1.1.16813';
 str_version_type = r'测试版';
 
@@ -268,17 +271,17 @@ def GetTestPageHtml(str_package_official,
 	   
     return trac_test_page; 
 
-def GetNoticeMessage(str_big_version,
+def GetNoticeMessage(str_small_version,
                      str_completet_version,
                      str_version_type):
-    #p0  变量 str_big_version  ， 比如 8.3
+    #p0  变量 str_small_version  ， 比如 8.3
     #p1  变量 str_completet_version ， 比如 8.3.0.14145 
     #p3  变量 str_version_type ， 比如 内测版
     notice_message_formate =\
 'v{0}{2}v{1}已放trac上，下载地址：\n\
 http://172.16.0.17/product/2345explorer/v{0}/{1}/2345explorer_v{1}.exe\n\
 修改内容详见：http://172.16.0.17:8080/2345explorer/wiki/v{1}\n';
-    notice_message = notice_message_formate.format(str_big_version, str_completet_version, str_version_type);
+    notice_message = notice_message_formate.format(str_small_version, str_completet_version, str_version_type);
     return notice_message;
 
 print GetTracVersionHtml(str_package_official, str_version_type);
@@ -302,7 +305,7 @@ print GetTestPageHtml(str_package_official,\
                       str_package_7zsetup,\
 					  str_package_qcustom);
 
-print GetNoticeMessage(str_big_version, str_completet_version, str_version_type);
+print GetNoticeMessage(str_small_version, str_completet_version, str_version_type);
 
 
 
