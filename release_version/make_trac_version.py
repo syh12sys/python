@@ -3,6 +3,7 @@ import md5
 import os
 import time
 import string
+import urllib
 
 #####例子 Sample
 # \\172.16.0.17\product\2345explorer\v8.3\8.3.0.14145
@@ -39,13 +40,13 @@ import string
 
 
 
-str_prodocut_dir = r'\\172.16.0.17\product\2345explorer';
+str_prodocut_dir = r'//172.16.0.17/product/2345explorer';
 str_big_version = r'9.1';
 # "发到项目群里的那句话"使用小版本号，一般大版本号等于小版本号
 # 但是也会出现不相同的情况，例如: V9.1  和  v9.1.1
 str_small_version = r'9.1.1';
-str_completet_version = r'9.1.1.16813';
-str_version_type = r'测试版';
+str_completet_version = r'9.1.1.16838';
+str_version_type = r'Beta预发布版';
 
 str_root_dir = str_prodocut_dir + '/v' + str_big_version + '/'+ str_completet_version + '/';
 
@@ -271,22 +272,39 @@ def GetTestPageHtml(str_package_official,
 	   
     return trac_test_page; 
 
-def GetNoticeMessage(str_small_version,
+def GetNoticeMessage(str_big_version, 
+                     str_small_version,
                      str_completet_version,
                      str_version_type):
     #p0  变量 str_small_version  ， 比如 8.3
     #p1  变量 str_completet_version ， 比如 8.3.0.14145 
     #p3  变量 str_version_type ， 比如 内测版
-    notice_message_formate =\
-'v{0}{2}v{1}已放trac上，下载地址：\n\
-http://172.16.0.17/product/2345explorer/v{0}/{1}/2345explorer_v{1}.exe\n\
-修改内容详见：http://172.16.0.17:8080/2345explorer/wiki/v{1}\n';
+    # 检测两个url是否存在
+    url1 = 'http://172.16.0.17/product/2345explorer/v{0}/{1}/2345explorer_v{1}.exe'.format(str_big_version, str_completet_version);
+    url2 = 'http://172.16.0.17:8080/2345explorer/wiki/v{0}'.format(str_completet_version);
+    try:
+        if urllib.urlopen(url1).getcode() != 200:
+            print 'Error:  ' + url1 + ' 不存在'
+            return
+    except:
+        print 'Error:' + url1 + ' 不存在'
+        return
+    try:
+        if urllib.urlopen(url2).getcode() != 200:
+            print 'Error:' + url2 + ' 不存在'
+            return
+    except:
+        print 'Error:' + url2 + ' 不存在'
+        return
+
+    notice_message_formate = 'v{0}{2}v{1}已放trac上，下载地址：\n' + url1 +'\n修改内容详见：' + url2 + '\n';
     notice_message = notice_message_formate.format(str_small_version, str_completet_version, str_version_type);
     return notice_message;
 
 print GetTracVersionHtml(str_package_official, str_version_type);
 
-print GetTestPageHtml(str_package_official,\
+
+test_page = GetTestPageHtml(str_package_official,\
                       str_package_integral,\
                       str_package_integral_1,\
                       str_package_integral_2,\
@@ -305,7 +323,20 @@ print GetTestPageHtml(str_package_official,\
                       str_package_7zsetup,\
 					  str_package_qcustom);
 
-print GetNoticeMessage(str_small_version, str_completet_version, str_version_type);
+print test_page;
+
+print '******先修改产品版本号****************\n\n'
+
+print GetNoticeMessage(str_big_version, str_small_version, str_completet_version, str_version_type);
+
+# 检测测试页中生成的安装包和原目录下的个数是否相等
+for root, dirs, files in os.walk(str_root_dir):
+    print str_prodocut_dir + '下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包，其中：'
+    for file in files:
+        if test_page.find(file) == -1:
+          print file + '  没有在测试页中生成'
+
+
 
 
 
