@@ -2,7 +2,7 @@
 import hashlib
 import os
 import time
-import urllib
+import urllib.request
 
 #####例子 Sample
 # \\172.16.0.17\product\2345explorer\v8.3\8.3.0.14145
@@ -70,20 +70,11 @@ str_package_qcustom =  str_root_dir + '2345explorer_custom_qqmgr.exe';
 
 def GetFileSizeAndMd5(str_file_path) :
     all_data = open(str_file_path, 'rb').read();
-    md5_cal = hashlib.md5.new();
+    md5_cal = hashlib.md5()
     md5_cal.update(all_data);
     return (md5_cal.hexdigest().upper(), len(all_data));
 
-def UrlExist(url):
-    ret = False
-    try:
-        if urllib.urlopen(url).getcode() != 200:
-            print('Error:  ' + url + ' 不存在')
-    except:
-        print('Error:  ' + url + ' 不存在')
 
-    ret = True
-    return ret
 
 def GetTracVersionHtml(str_package_official_path, str_version_type):
     stat_info = os.stat(str_package_official);
@@ -278,9 +269,20 @@ def GetTestPageHtml(str_package_official,
         qcustom_package_info = GetFileSizeAndMd5(str_package_qcustom);
         trac_test_page_formate_gcustom = trac_test_page_formate2_text + '2345explorer_custom_qqmgr.exe Q管渠道定制包 ]||2345explorer_custom_qqmgr.exe||{0}||{1}||\n'
         trac_test_page += trac_test_page_formate_gcustom.format(qcustom_package_info[0], qcustom_package_info[1]);
-       
-	   
-    return trac_test_page; 
+
+    return trac_test_page;
+
+def UrlExist(url):
+    ret = True
+    try:
+        code = urllib.urlopen(url).getcode()
+        if  code != 200:
+            print('Error:  ' + url + ' 不存在 ' + code)
+            ret = False
+    except:
+        print('Error:  ' + url + ' 不存在')
+        ret = False
+    return ret
 
 def GetNoticeMessage(str_big_version, 
                      str_small_version,
@@ -292,7 +294,11 @@ def GetNoticeMessage(str_big_version,
     # 检测两个url是否存在
     url1 = 'http://172.16.0.17/product/2345explorer/v{0}/{1}/2345explorer_v{1}.exe'.format(str_big_version, str_completet_version);
     url2 = 'http://172.16.0.17:8080/2345explorer/wiki/v{0}'.format(str_completet_version);
-    if not UrlExist(url1) or not UrlExist(url2):
+    if urllib.request.urlopen(url1).code != 200:
+        print(url1 + ' 不存在 ')
+        return
+    if urllib.request.urlopen(url2).code != 200:
+        print(url1 + ' 不存在 ')
         return
 
     notice_message_formate = 'v{0}{2}v{1}已放trac上，下载地址：\n' + url1 +'\n修改内容详见：' + url2 + '\n';
@@ -320,7 +326,6 @@ test_page = GetTestPageHtml(str_package_official,\
                       str_package_silentup,\
                       str_package_7zsetup,\
 					  str_package_qcustom);
-
 print(test_page)
 
 print('******先修改产品版本号****************\n\n')
@@ -329,7 +334,7 @@ print(GetNoticeMessage(str_big_version, str_small_version, str_completet_version
 
 # 检测测试页中生成的安装包和原目录下的个数是否相等
 for root, dirs, files in os.walk(str_root_dir):
-    print(str_prodocut_dir + '下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包，其中：')
+    print(str_root_dir + ' 下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包，其中：')
     for file in files:
         if test_page.find(file) == -1:
           print(file + '  没有在测试页中生成')
