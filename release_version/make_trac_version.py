@@ -1,8 +1,7 @@
 #coding: gbk
-import md5
+import hashlib
 import os
 import time
-import string
 import urllib
 
 #####例子 Sample
@@ -71,9 +70,20 @@ str_package_qcustom =  str_root_dir + '2345explorer_custom_qqmgr.exe';
 
 def GetFileSizeAndMd5(str_file_path) :
     all_data = open(str_file_path, 'rb').read();
-    md5_cal = md5.new();
+    md5_cal = hashlib.md5.new();
     md5_cal.update(all_data);
     return (md5_cal.hexdigest().upper(), len(all_data));
+
+def UrlExist(url):
+    ret = False
+    try:
+        if urllib.urlopen(url).getcode() != 200:
+            print('Error:  ' + url + ' 不存在')
+    except:
+        print('Error:  ' + url + ' 不存在')
+
+    ret = True
+    return ret
 
 def GetTracVersionHtml(str_package_official_path, str_version_type):
     stat_info = os.stat(str_package_official);
@@ -282,26 +292,14 @@ def GetNoticeMessage(str_big_version,
     # 检测两个url是否存在
     url1 = 'http://172.16.0.17/product/2345explorer/v{0}/{1}/2345explorer_v{1}.exe'.format(str_big_version, str_completet_version);
     url2 = 'http://172.16.0.17:8080/2345explorer/wiki/v{0}'.format(str_completet_version);
-    try:
-        if urllib.urlopen(url1).getcode() != 200:
-            print 'Error:  ' + url1 + ' 不存在'
-            return
-    except:
-        print 'Error:' + url1 + ' 不存在'
-        return
-    try:
-        if urllib.urlopen(url2).getcode() != 200:
-            print 'Error:' + url2 + ' 不存在'
-            return
-    except:
-        print 'Error:' + url2 + ' 不存在'
+    if not UrlExist(url1) or not UrlExist(url2):
         return
 
     notice_message_formate = 'v{0}{2}v{1}已放trac上，下载地址：\n' + url1 +'\n修改内容详见：' + url2 + '\n';
     notice_message = notice_message_formate.format(str_small_version, str_completet_version, str_version_type);
     return notice_message;
 
-print GetTracVersionHtml(str_package_official, str_version_type);
+print(GetTracVersionHtml(str_package_official, str_version_type));
 
 
 test_page = GetTestPageHtml(str_package_official,\
@@ -323,18 +321,18 @@ test_page = GetTestPageHtml(str_package_official,\
                       str_package_7zsetup,\
 					  str_package_qcustom);
 
-print test_page;
+print(test_page)
 
-print '******先修改产品版本号****************\n\n'
+print('******先修改产品版本号****************\n\n')
 
-print GetNoticeMessage(str_big_version, str_small_version, str_completet_version, str_version_type);
+print(GetNoticeMessage(str_big_version, str_small_version, str_completet_version, str_version_type))
 
 # 检测测试页中生成的安装包和原目录下的个数是否相等
 for root, dirs, files in os.walk(str_root_dir):
-    print str_prodocut_dir + '下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包，其中：'
+    print(str_prodocut_dir + '下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包，其中：')
     for file in files:
         if test_page.find(file) == -1:
-          print file + '  没有在测试页中生成'
+          print(file + '  没有在测试页中生成')
 
 
 
