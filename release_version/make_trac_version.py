@@ -4,6 +4,9 @@ import os
 import time
 import urllib.request
 
+
+
+
 #####例子 Sample
 # \\172.16.0.17\product\2345explorer\v8.3\8.3.0.14145
 ###  名称                 包名                                     变量命名规则
@@ -44,8 +47,8 @@ str_big_version = r'9.1';
 # "发到项目群里的那句话"使用小版本号，一般大版本号等于小版本号
 # 但是也会出现不相同的情况，例如: V9.1  和  v9.1.1
 str_small_version = r'9.1.1';
-str_completet_version = r'9.1.1.16838';
-str_version_type = r'Beta预发布版';
+str_completet_version = r'9.1.1.16842';
+str_version_type = r'测试版';
 
 str_root_dir = str_prodocut_dir + '/v' + str_big_version + '/'+ str_completet_version + '/';
 
@@ -294,12 +297,11 @@ def GetNoticeMessage(str_big_version,
     # 检测两个url是否存在
     url1 = 'http://172.16.0.17/product/2345explorer/v{0}/{1}/2345explorer_v{1}.exe'.format(str_big_version, str_completet_version);
     url2 = 'http://172.16.0.17:8080/2345explorer/wiki/v{0}'.format(str_completet_version);
-    if urllib.request.urlopen(url1).code != 200:
-        print(url1 + ' 不存在 ')
-        return
-    if urllib.request.urlopen(url2).code != 200:
-        print(url1 + ' 不存在 ')
-        return
+    try:
+        if urllib.request.urlopen(url1).code != 200:
+            print(url1 + ' 不存在 ')
+    except urllib.error.URLError as e:
+        print(e.read().decode('utf-8'))
 
     notice_message_formate = 'v{0}{2}v{1}已放trac上，下载地址：\n' + url1 +'\n修改内容详见：' + url2 + '\n';
     notice_message = notice_message_formate.format(str_small_version, str_completet_version, str_version_type);
@@ -334,12 +336,7 @@ print(GetNoticeMessage(str_big_version, str_small_version, str_completet_version
 
 # 检测测试页中生成的安装包和原目录下的个数是否相等
 for root, dirs, files in os.walk(str_root_dir):
-    print(str_root_dir + ' 下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包，其中：')
+    print(str_root_dir + ' 下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包')
     for file in files:
         if test_page.find(file) == -1:
           print(file + '  没有在测试页中生成')
-
-
-
-
-
