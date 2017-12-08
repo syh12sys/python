@@ -3,8 +3,7 @@ import hashlib
 import os
 import time
 import urllib.request
-
-
+import re
 
 
 #####例子 Sample
@@ -47,10 +46,11 @@ str_big_version = r'9.1';
 # "发到项目群里的那句话"使用小版本号，一般大版本号等于小版本号
 # 但是也会出现不相同的情况，例如: V9.1  和  v9.1.1
 str_small_version = r'9.1.1';
-str_completet_version = r'9.1.1.16842';
-str_version_type = r'测试版';
+str_completet_version = r'9.1.1.16851';
+str_version_type = r'Beta预发布版';
 
 str_root_dir = str_prodocut_dir + '/v' + str_big_version + '/'+ str_completet_version + '/';
+
 
 str_package_official = str_root_dir + '2345explorer_v' +  str_completet_version + '.exe';
 str_package_integral = str_root_dir + '2345explorer_kUID.exe';
@@ -273,19 +273,17 @@ def GetTestPageHtml(str_package_official,
         trac_test_page_formate_gcustom = trac_test_page_formate2_text + '2345explorer_custom_qqmgr.exe Q管渠道定制包 ]||2345explorer_custom_qqmgr.exe||{0}||{1}||\n'
         trac_test_page += trac_test_page_formate_gcustom.format(qcustom_package_info[0], qcustom_package_info[1]);
 
-    return trac_test_page;
+    # 增量升级包，一般一个版本只有一个
+    for root, dirs, files in os.walk(str_root_dir):
+        for file in files:
+            m = re.search('v\d+(\.\d+){3}_v\d+(\.\d+){3}', file)
+            if m is not None:
+                increment_package_info = GetFileSizeAndMd5(root + file)
+                trac_test_page_formate_increment = trac_test_page_formate2_text + '{0} 增量升级包 ]||{0}||{1}||{2}||\n'
+                trac_test_page += trac_test_page_formate_increment.format(file, increment_package_info[0], increment_package_info[1])
+        break
 
-def UrlExist(url):
-    ret = True
-    try:
-        code = urllib.urlopen(url).getcode()
-        if  code != 200:
-            print('Error:  ' + url + ' 不存在 ' + code)
-            ret = False
-    except:
-        print('Error:  ' + url + ' 不存在')
-        ret = False
-    return ret
+    return trac_test_page;
 
 def GetNoticeMessage(str_big_version, 
                      str_small_version,
@@ -336,7 +334,8 @@ print(GetNoticeMessage(str_big_version, str_small_version, str_completet_version
 
 # 检测测试页中生成的安装包和原目录下的个数是否相等
 for root, dirs, files in os.walk(str_root_dir):
-    print(str_root_dir + ' 下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(str_root_dir)) + ' 安装包')
+    print(root + ' 下共有 ' + str(len(files)) + ' 个安装包, 测试页中生成 ' + str(test_page.count(root)) + ' 安装包')
     for file in files:
         if test_page.find(file) == -1:
           print(file + '  没有在测试页中生成')
+    print('\n')
