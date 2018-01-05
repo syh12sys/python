@@ -3,17 +3,8 @@ import re
 import urllib.request
 import http.cookiejar
 import urllib.parse
-
-def ungzip(data):
-    print('正在解压……')
-    data=gzip.decompress(data)
-    print('解压完毕！')
-    return data
-
-def getXSRF(data):
-    cer = re.compile('name="_xsrf" value="(.*)"', flags = 0)
-    strlist = cer.findall(data)
-    return strlist[0]
+import chardet
+import hashlib
 
 def getOpener(head):
     #deal with the Cookies
@@ -37,23 +28,43 @@ header = {
      'Host':'wwww.zhihu.com',
 }
 
-url = 'https://www.zhihu.com/signin'
+url = 'https://oa.2345.cn/login.php?forback=%2F'
 opener = getOpener(header)
 op = opener.open(url)
 data = op.read()
-output = open('zhihu.html', 'w')
-output.write(str(data.decode()))
-output.close()
+data = gzip.decompress(data)
+charset = chardet.detect(data)
+data = data.decode(charset['encoding'], 'ignore')
 
 
-id = '13564518816'
-password = 'SYS12sys'
-postDict = {
-        'email': id,
-        'password': password,
-        'rememberme': 'y'
+image_url = 'https://oa.2345.cn/login/verificationCode'
+op = opener.open(image_url)
+print(type(op))
+verify_image = op.read()
+verify_image = gzip.decompress(verify_image)
+imge_file = open('verify_image.png', 'wb')
+imge_file.write(verify_image)
+imge_file.close()
+# 打开图片，查看验证码
+verify_code = input('输入验证码： ')
+print(verify_code)
+
+post_dic = {
+'r': '',
+'forback': '/',
+'username': '孙迎世',
 }
-postData = urllib.parse.urlencode(postDict).encode()
+
+password = 'syh12sys'
+fd = hashlib.md5()
+fd.update(password.encode('utf-8'))
+print(fd.hexdigest())
+post_dic['password1'] = password
+post_dic['password'] = fd.hexdigest()
+post_dic['checkCode'] = verify_code
+
+
+postData = urllib.parse.urlencode(post_dic).encode()
 op=opener.open(url, postData)
 data = op.read()
 data = ungzip(data)
