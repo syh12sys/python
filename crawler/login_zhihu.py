@@ -1,5 +1,4 @@
 import gzip
-import re
 import urllib.request
 import http.cookiejar
 import urllib.parse
@@ -20,12 +19,12 @@ def getOpener(head):
 
 
 header = {
-	'Connection':'Keep-Alive',
-	'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-	'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    'Connection':'Keep-Alive',
+    'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
     'Accept-Encoding':'gzip, deflate, br',
-	'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36',
-     'Host':'wwww.zhihu.com',
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36',
+    'Host':'wwww.zhihu.com',
 }
 
 url = 'https://oa.2345.cn/login.php?forback=%2F'
