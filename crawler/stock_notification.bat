@@ -1,0 +1,1 @@
+@"C:\Python33\python.exe" stock_notification.py
