@@ -8,6 +8,14 @@ import urllib.request
 
 #紫光股份，万邦达，深科技，东方财富，东阳光科
 stocks = ['000938', '300055', '000021', '300059', '600673']
+# 满足同一个条件，发送短信的次数
+# 例如一个股票在2%左右反复震荡，会造成发送很多次短信
+send_sms_history = {}
+for stock in stocks:
+    send_sms_history[stock] = (0, 0)
+
+# 记录上次的涨跌幅，用来表示股票是变化到阈值
+previous = [0.0] * len(stocks)
 
 def write_log(content):
   if content is None or len(content) is 0:
@@ -72,7 +80,6 @@ def manipulation_data(raw_data):
   return third
 
 def SendSMSAccordingToRule():
-  previous = [0.0] * len(stocks)
   raw_data = crawle_raw_data()
   # print(raw_data)
   data = manipulation_data(raw_data)
@@ -82,18 +89,31 @@ def SendSMSAccordingToRule():
   for index in range(len(data)):
     up_or_down_percent = float(data[index][2])
     if previous[index] < 2.0 and up_or_down_percent >= 2.0:
-       message += ', '.join(data[index]) + ';'
+        message += ', '.join(data[index]) + ';'
     elif previous[index] > -2.0 and up_or_down_percent <= -2.0:
-       message += ', '.join(data[index]) + ';'
+        message += ', '.join(data[index]) + ';'
+    else:
+        localtime = time.localtime(time.time())
+        #整点和半点发送通知
+        if localtime.tm_hour in (9, 10, 11, 13, 14, 15) and localtime.tm_min in (0, 30):
+            message += ', '.join(data[index]) + ';'
+
     previous[index] = up_or_down_percent
 
-  # print(message)
-  # print(previous)
   if message != '':
     send_message(message)
 
-# SendSMSAccordingToRule()
+while True:
+    localtime = time.localtime(time.time())
+    if localtime.tm_wday in (5, 6):
+        write_log('周六周日退出')
+        break
+    if localtime.tm_hour <= 9 and localtime.tm_min < 30:
+        time.sleep(30)
+        continue
+    if localtime.tm_hour > 15:
+        write_log('大于3点退出')
+        break
 
-def TimeCallback():
-
-
+    SendSMSAccordingToRule()
+    time.sleep(30)

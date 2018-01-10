@@ -42,12 +42,12 @@ import re
 
 
 str_prodocut_dir = r'//172.16.0.17/product/2345explorer';
-str_big_version = r'9.1';
+str_big_version = r'9.2';
 # "发到项目群里的那句话"使用小版本号，一般大版本号等于小版本号
 # 但是也会出现不相同的情况，例如: V9.1  和  v9.1.1
-str_small_version = r'9.1.1';
-str_completet_version = r'9.1.1.16851';
-str_version_type = r'Beta预发布版';
+str_small_version = r'9.2';
+str_completet_version = r'9.2.0.17068';
+str_version_type = r'测试版';
 
 str_root_dir = str_prodocut_dir + '/v' + str_big_version + '/'+ str_completet_version + '/';
 
@@ -60,6 +60,7 @@ str_package_integral_3 = str_root_dir + '2345explorer_k29.exe';
 str_package_ucustom =  str_root_dir + '2345explorer_custom.exe';
 str_package_ucustom_anonymous = str_root_dir + '2345explorer_custom_anonymous.exe';
 str_package_ucustom_without_np = str_root_dir + '2345explorer_custom_without_npflash.exe';
+str_package_ucustom_shopping_plugin = str_root_dir + '2345explorer_custom_bimai.exe'
 str_package_uname = str_root_dir + '2345explorer_66666655555_v' +  str_completet_version + '.exe';
 str_package_uname_silent = str_root_dir + '2345explorer_66666655555_silent_v' +  str_completet_version + '.exe';
 str_package_uname_maysilent = str_root_dir + '2345explorer_66666655555_maysilent_v' +  str_completet_version + '.exe';
@@ -105,6 +106,7 @@ def GetTestPageHtml(str_package_official,
                     str_package_ucustom = '',
                     str_package_ucustom_anonymous = '',
                     str_package_ucustom_without_np = '',
+                    str_package_ucustom_shopping_plugin='',
                     str_package_uname = '',
                     str_package_uname_silent = '',
                     str_package_uname_maysilent = '',
@@ -183,6 +185,12 @@ def GetTestPageHtml(str_package_official,
         ucustom_without_np_package_info = GetFileSizeAndMd5(str_package_ucustom_without_np);
         trac_test_page_formate_ucustom_without_np = trac_test_page_formate2_text + '2345explorer_custom_without_npflash.exe 联盟定制包_无NPFlash包 ]||2345explorer_custom_without_npflash.exe||{0}||{1}||\n'
         trac_test_page += trac_test_page_formate_ucustom_without_np.format(ucustom_without_np_package_info[0], ucustom_without_np_package_info[1]);
+
+
+    if (os.path.exists(str_package_ucustom_shopping_plugin)) :
+        ucustom_shopping_plugin_package_info = GetFileSizeAndMd5(str_package_ucustom_shopping_plugin);
+        trac_test_page_formate_ucustom_shopping_plugin = trac_test_page_formate2_text + '2345explorer_custom_bimai.exe 联盟定制包_必买插件包 ]||2345explorer_custom_bimai.exe||{0}||{1}||\n'
+        trac_test_page += trac_test_page_formate_ucustom_shopping_plugin.format(ucustom_shopping_plugin_package_info[0], ucustom_shopping_plugin_package_info[1]);
 
     #p0  变量 str_completet_version ， 比如 8.3.0.14145
     #p1  联盟命名包 MD5，大写字符
@@ -276,8 +284,7 @@ def GetTestPageHtml(str_package_official,
     # 增量升级包，一般一个版本只有一个
     for root, dirs, files in os.walk(str_root_dir):
         for file in files:
-            m = re.search('v\d+(\.\d+){3}_v\d+(\.\d+){3}', file)
-            if m is not None:
+            if re.search('v\d+(\.\d+){3}_v\d+(\.\d+){3}', file) is not None:
                 increment_package_info = GetFileSizeAndMd5(root + file)
                 trac_test_page_formate_increment = trac_test_page_formate2_text + '{0} 增量升级包 ]||{0}||{1}||{2}||\n'
                 trac_test_page += trac_test_page_formate_increment.format(file, increment_package_info[0], increment_package_info[1])
@@ -316,6 +323,7 @@ test_page = GetTestPageHtml(str_package_official,\
                       str_package_ucustom,\
                       str_package_ucustom_anonymous,\
                       str_package_ucustom_without_np,
+                      str_package_ucustom_shopping_plugin,
                       str_package_uname,\
                       str_package_uname_silent,\
                       str_package_uname_maysilent,\
