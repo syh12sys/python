@@ -3,7 +3,7 @@
 from twilio.rest import Client
 import chardet
 import time
-import threading
+from datetime import datetime
 import urllib.request
 
 #紫光股份，万邦达，深科技，东方财富，东阳光科
@@ -16,6 +16,9 @@ for stock in stocks:
 
 # 记录上次的涨跌幅，用来表示股票是变化到阈值
 previous = [0.0] * len(stocks)
+
+# 轮询网站时间间隔
+loop_interval_sec = 30
 
 def write_log(content):
   if content is None or len(content) is 0:
@@ -92,11 +95,11 @@ def SendSMSAccordingToRule():
         message += ', '.join(data[index]) + ';'
     elif previous[index] > -2.0 and up_or_down_percent <= -2.0:
         message += ', '.join(data[index]) + ';'
-    else:
-        localtime = time.localtime(time.time())
-        #整点和半点发送通知
-        if localtime.tm_hour in (9, 10, 11, 13, 14, 15) and localtime.tm_min in (0, 30):
-            message += ', '.join(data[index]) + ';'
+    # else:
+    #     localtime = time.localtime(time.time())
+    #     #整点和半点发送通知
+    #     if localtime.tm_hour in (9, 10, 11, 13, 14, 15) and localtime.tm_min in (0, 30) and localtime.tm_sec <= loop_interval_sec:
+    #         message += ', '.join(data[index]) + ';'
 
     previous[index] = up_or_down_percent
 
@@ -104,16 +107,17 @@ def SendSMSAccordingToRule():
     send_message(message)
 
 while True:
-    localtime = time.localtime(time.time())
-    if localtime.tm_wday in (5, 6):
+    date = datetime.now().date()
+    time_now = datetime.now().time()
+    if date.isoweekday() in (6, 7):
         write_log('周六周日退出')
         break
-    if localtime.tm_hour <= 9 and localtime.tm_min < 30:
-        time.sleep(30)
+    elif time_now < time_now.replace(hour=9, second=30):
+        time.sleep(loop_interval_sec)
         continue
-    if localtime.tm_hour > 15:
+    elif time_now > time_now.replace(hour=15):
         write_log('大于3点退出')
         break
 
     SendSMSAccordingToRule()
-    time.sleep(30)
+    time.sleep(loop_interval_sec)
