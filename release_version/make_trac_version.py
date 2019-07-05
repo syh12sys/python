@@ -45,9 +45,9 @@ str_prodocut_dir = r'//172.16.0.17/product/2345explorer';
 str_big_version = r'9.2';
 # "发到项目群里的那句话"使用小版本号，一般大版本号等于小版本号
 # 但是也会出现不相同的情况，例如: V9.1  和  v9.1.1
-str_small_version = r'9.2';
-str_completet_version = r'9.2.0.17068';
-str_version_type = r'测试版';
+str_small_version = r'9.2.1';
+str_completet_version = r'9.2.1.17116';
+str_version_type = r'正式预发布版';
 
 str_root_dir = str_prodocut_dir + '/v' + str_big_version + '/'+ str_completet_version + '/';
 
@@ -71,6 +71,7 @@ str_package_autoup_pcsafe = str_root_dir + '2345explorer_v' +  str_completet_ver
 str_package_silentup = str_root_dir + '2345explorer_v' +  str_completet_version + '.up.dat';
 str_package_7zsetup =  str_root_dir + '2345explorer_v' + str_completet_version + '_7z.7z';
 str_package_qcustom =  str_root_dir + '2345explorer_custom_qqmgr.exe';
+str_package_tools_ecrt =  str_root_dir + '2345explorer_tools_v9.2.0.17091.exe';
 
 def GetFileSizeAndMd5(str_file_path) :
     all_data = open(str_file_path, 'rb').read();
@@ -287,6 +288,10 @@ def GetTestPageHtml(str_package_official,
             if re.search('v\d+(\.\d+){3}_v\d+(\.\d+){3}', file) is not None:
                 increment_package_info = GetFileSizeAndMd5(root + file)
                 trac_test_page_formate_increment = trac_test_page_formate2_text + '{0} 增量升级包 ]||{0}||{1}||{2}||\n'
+                trac_test_page += trac_test_page_formate_increment.format(file, increment_package_info[0], increment_package_info[1])
+            elif file == '2345explorer_tools_v9.2.0.17091.exe':
+                increment_package_info = GetFileSizeAndMd5(root + file)
+                trac_test_page_formate_increment = trac_test_page_formate2_text + '{0} 外围工具dll过认证包 ]||{0}||{1}||{2}||\n'
                 trac_test_page += trac_test_page_formate_increment.format(file, increment_package_info[0], increment_package_info[1])
         break
 

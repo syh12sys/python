@@ -6,8 +6,8 @@ import time
 from datetime import datetime
 import urllib.request
 
-#紫光股份，万邦达，深科技，东方财富，东阳光科
-stocks = ['000938', '300055', '000021', '300059', '600673']
+#紫光股份，二三四五, 宋城演艺，东阳光科
+stocks = ['002195', '603368', '600673']
 # 满足同一个条件，发送短信的次数
 # 例如一个股票在2%左右反复震荡，会造成发送很多次短信
 send_sms_history = {}
@@ -115,7 +115,7 @@ while True:
     elif time_now < time_now.replace(hour=9, second=30):
         time.sleep(loop_interval_sec)
         continue
-    elif time_now > time_now.replace(hour=15):
+    elif time_now > time_now.replace(hour=15, second=0):
         write_log('大于3点退出')
         break
 

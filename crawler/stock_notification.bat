@@ -1,1 +1,1 @@
-@"C:\Python33\python.exe" stock_notification.py
+C:\Python3.6\python.exe stock_notification.py

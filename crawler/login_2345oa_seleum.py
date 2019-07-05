@@ -74,14 +74,14 @@ def set_sessions(browser):
 request = set_sessions(login('孙迎世', 'syh12sys'))
 
 dic_mac = {}
-day_interval = 4
+day_interval = 1
 while day_interval > 0:
     one_day_mac_dic = {}
 
     target_day = str(datetime.date.today() - datetime.timedelta(days=day_interval))
 
     dump_url = 'http://kehuduan.2345.com/index.php?r=KingDump/index' + '&search_start_date=' + target_day + \
-               '&ver=9.1.1.16851&process=browser&page=1'
+               '&ver=9.2.0.17091&page=1'
     data = request.get(dump_url)
 
     data = re.findall(r'<tr>[\s]*<td>[1-9][0-9]?</td>[\s\S]*?</tr>', data.text, re.M | re.I)
@@ -92,7 +92,7 @@ while day_interval > 0:
     page_index = 1
     while True:
         detail_url = 'http://kehuduan.2345.com/index.php?r=KingDump/detail&md5=' + md5 + \
-                     '&ver=9.1.1.16851&date=' + target_day + '&process=browser&page=' + str(page_index)
+                     '&ver=9.2.0.17091&date=' + target_day + '&page=' + str(page_index)
         page_data = request.get(detail_url)
         items = re.findall(r'<tr>[\s]*<td>[1-9][0-9]?</td>[\s\S]*?</tr>', page_data.text, re.M | re.I)
         for item in items:
