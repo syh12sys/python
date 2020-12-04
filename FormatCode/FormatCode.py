@@ -2,7 +2,7 @@ import os
 import sys
 import re
 
-dest_code_dir = r'D:\svn\CycloneAutomation\src\Util\Xml'
+dest_code_dir = r'D:\test'
 
 # 格式化wstring和string
 def FormatStd(file_content):
@@ -45,7 +45,7 @@ def FormatReference(file_content):
 # foramt if
 def FormatIf(file_content):
     # if
-    pattern = r'(if[^n].*\n)(.*;\n{1})'
+    pattern = r'(if[^n]*\(.*\n.*\)\n)(.*;\n{1})'
     formatted_file_content = re.sub(pattern, r'\1{\n\2}\n', file_content, sys.maxsize, re.M)
 
     # else
