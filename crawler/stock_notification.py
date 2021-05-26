@@ -8,6 +8,8 @@ import urllib.request
 
 #紫光股份，二三四五, 宋城演艺，东阳光科
 stocks = ['002195', '603368', '600673']
+#触发短信的涨跌幅度
+increase_percent = 0.5
 # 满足同一个条件，发送短信的次数
 # 例如一个股票在2%左右反复震荡，会造成发送很多次短信
 send_sms_history = {}
@@ -91,9 +93,9 @@ def SendSMSAccordingToRule():
   message = ''
   for index in range(len(data)):
     up_or_down_percent = float(data[index][2])
-    if previous[index] < 2.0 and up_or_down_percent >= 2.0:
+    if previous[index] < increase_percent and up_or_down_percent >= increase_percent:
         message += ', '.join(data[index]) + ';'
-    elif previous[index] > -2.0 and up_or_down_percent <= -2.0:
+    elif previous[index] > -increase_percent and up_or_down_percent <= -increase_percent:
         message += ', '.join(data[index]) + ';'
     # else:
     #     localtime = time.localtime(time.time())
@@ -107,17 +109,17 @@ def SendSMSAccordingToRule():
     send_message(message)
 
 while True:
-    date = datetime.now().date()
-    time_now = datetime.now().time()
-    if date.isoweekday() in (6, 7):
-        write_log('周六周日退出')
-        break
-    elif time_now < time_now.replace(hour=9, second=30):
-        time.sleep(loop_interval_sec)
-        continue
-    elif time_now > time_now.replace(hour=15, second=0):
-        write_log('大于3点退出')
-        break
+    #date = datetime.now().date()
+    #time_now = datetime.now().time()
+    #if date.isoweekday() in (6, 7):
+    #    write_log('周六周日退出')
+    #    break
+    #elif time_now < time_now.replace(hour=9, second=30):
+    #    time.sleep(loop_interval_sec)
+    #    continue
+    #elif time_now > time_now.replace(hour=15, second=0):
+    #    write_log('大于3点退出')
+    #    break
 
     SendSMSAccordingToRule()
     time.sleep(loop_interval_sec)
